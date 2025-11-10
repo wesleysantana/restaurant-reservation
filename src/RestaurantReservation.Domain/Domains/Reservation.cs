@@ -2,7 +2,7 @@
 
 namespace RestaurantReservation.Domain.Domains;
 
-public class Reservation : DomainGeneric
+public class Reservation : DomainBase
 {
     public Guid UserId { get; private set; }
     public Guid TableId { get; private set; }

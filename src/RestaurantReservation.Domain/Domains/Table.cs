@@ -3,7 +3,7 @@ using RestaurantReservation.Domain.ValueObjects;
 
 namespace RestaurantReservation.Domain.Domains;
 
-public class Table : DomainGeneric
+public class Table : DomainBase
 {
     public Name Name { get; private set; }
     public Capacity Capacity { get; private set; }
