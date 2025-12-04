@@ -1,0 +1,27 @@
+﻿@RestaurantReservation.WebApi_HostAddress = http://localhost:5003
+
+POST {{RestaurantReservation.WebApi_HostAddress}}/api/user/login
+Content-Type: application/json
+
+{
+  "email": "teste@teste.com.br",
+  "password": "Teste@1234"
+}
+
+###
+
+POST {{RestaurantReservation.WebApi_HostAddress}}/api/user/register
+Content-Type: application/json
+
+{
+  "email": "teste@teste.com.br",
+  "password": "Teste@1234",
+  "passwordconfirmation": "Teste@1234"
+}
+
+###
+
+
+POST {{RestaurantReservation.WebApi_HostAddress}}/api/user/refresh-login
+
+###
