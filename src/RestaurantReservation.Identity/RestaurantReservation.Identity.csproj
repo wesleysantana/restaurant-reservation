@@ -17,8 +17,4 @@
     <ProjectReference Include="..\RestaurantReservation.Application\RestaurantReservation.Application.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-
 </Project>

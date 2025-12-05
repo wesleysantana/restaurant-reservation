@@ -12,12 +12,12 @@ public class Reservation : DomainBase
     public Instant StartsAt { get; private set; }
     public Instant EndsAt { get; private set; }
     public StatusReservation Status { get; private set; }
-    public int NumberOfPeople { get; private set; }
+    public short NumberOfGuests { get; private set; }
 
     private Reservation()
     { }
 
-    public Reservation(Guid userId, Guid tableId, Instant startsAt, Instant endsAt, int numberOfPeople)
+    public Reservation(Guid userId, Guid tableId, Instant startsAt, Instant endsAt, short numberOfGuests)
     {
         if (userId == Guid.Empty)
             throw new DomainException("UserId inválido.");
@@ -25,7 +25,7 @@ public class Reservation : DomainBase
         if (tableId == Guid.Empty)
             throw new DomainException("TableId inválido.");
 
-        if (numberOfPeople < 1)
+        if (numberOfGuests < 1)
             throw new DomainException("A reserva deve ter pelo menos 1 pessoa.");
         
         if (startsAt <= Instant.FromDateTimeUtc(DateTime.UtcNow))
@@ -38,7 +38,7 @@ public class Reservation : DomainBase
         TableId = tableId;
         StartsAt = startsAt;
         EndsAt = endsAt;
-        NumberOfPeople = numberOfPeople;
+        NumberOfGuests = numberOfGuests;
         Status = StatusReservation.Ativo;
     }
 

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RestaurantReservation.Application.DTOs.Request.User;
 using RestaurantReservation.Application.DTOs.Response.User;
-using RestaurantReservation.Application.Interfaces.Services;
+using RestaurantReservation.Application.Interfaces;
 using RestaurantReservation.WebApi.Controllers.Shared;
 using System.Net;
 using System.Security.Claims;

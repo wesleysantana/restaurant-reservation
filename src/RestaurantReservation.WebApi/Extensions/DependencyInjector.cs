@@ -1,4 +1,4 @@
-﻿using RestaurantReservation.Application.Interfaces.Services;
+﻿using RestaurantReservation.Application.Interfaces;
 using RestaurantReservation.Domain.Repositories;
 using RestaurantReservation.Identity.Services;
 using RestaurantReservation.Infra.Repositories;

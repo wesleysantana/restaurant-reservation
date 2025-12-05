@@ -1,14 +1,5 @@
 ﻿namespace RestaurantReservation.Domain.Enums;
 
-/*
-public enum Roles
-{
-    User,
-    Admin
-    //Customer,
-    //Administrator
-}*/
-
 public enum StatusTable
 {
     Disponivel,

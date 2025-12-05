@@ -10,4 +10,8 @@
     <PackageReference Include="FluentResults" Version="4.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\RestaurantReservation.Domain\RestaurantReservation.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

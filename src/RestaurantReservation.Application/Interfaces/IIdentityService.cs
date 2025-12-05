@@ -1,7 +1,7 @@
 ﻿using RestaurantReservation.Application.DTOs.Request.User;
 using RestaurantReservation.Application.DTOs.Response.User;
 
-namespace RestaurantReservation.Application.Interfaces.Services;
+namespace RestaurantReservation.Application.Interfaces;
 
 public interface IIdentityService
 {

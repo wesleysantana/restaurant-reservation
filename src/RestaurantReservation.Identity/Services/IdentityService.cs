@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using RestaurantReservation.Application.DTOs.Request.User;
 using RestaurantReservation.Application.DTOs.Response.User;
-using RestaurantReservation.Application.Interfaces.Services;
+using RestaurantReservation.Application.Interfaces;
 using RestaurantReservation.Identity.Configurations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
