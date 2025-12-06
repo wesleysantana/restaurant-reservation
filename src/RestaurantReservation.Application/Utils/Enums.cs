@@ -3,5 +3,8 @@
 public enum ProblemCode
 {
     TableUnavailable,
-    ReservationNotFound
+    ReservationNotFound,
+    InvalidReservationCancellation,
+    UnauthorizedUser,
+    ForbiddenReservationCancellation
 }

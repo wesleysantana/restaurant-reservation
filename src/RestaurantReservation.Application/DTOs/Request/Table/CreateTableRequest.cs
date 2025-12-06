@@ -8,6 +8,6 @@ public class CreateTableRequest
     [Required(ErrorMessage = MessagesDataAnnotations.Required)]
     public string Name { get; set; } = string.Empty;
 
-    [Range(1, short.MaxValue, ErrorMessage = MessagesDataAnnotations.Range)]
+    [Range(1, 100, ErrorMessage = MessagesDataAnnotations.Range)]
     public short Capacity { get; set; }
 }

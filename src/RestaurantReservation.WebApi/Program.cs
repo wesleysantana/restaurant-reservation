@@ -58,6 +58,8 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 builder.Services.AddAuthentication(builder.Configuration);
 DependencyInjector.RegisterServices(builder.Services);
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();

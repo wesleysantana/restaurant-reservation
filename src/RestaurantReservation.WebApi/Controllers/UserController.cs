@@ -25,9 +25,6 @@ public class UserController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterUserRequest registerUser)
     {
-        if (!ModelState.IsValid)
-            return BadRequest();
-
         var result = await _identityService.RegisterUser(registerUser);
         if (result.Success)
             return Ok(result);
@@ -74,5 +71,4 @@ public class UserController : ControllerBase
 
         return Unauthorized(result);
     }
-
 }

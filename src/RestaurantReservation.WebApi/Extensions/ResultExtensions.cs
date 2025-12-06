@@ -49,6 +49,10 @@ public static class ResultExtensions
         var statusCode = code switch
         {
             nameof(ProblemCode.TableUnavailable) => StatusCodes.Status409Conflict,
+            nameof(ProblemCode.ReservationNotFound) => StatusCodes.Status404NotFound,
+            nameof(ProblemCode.InvalidReservationCancellation) => StatusCodes.Status422UnprocessableEntity,
+            nameof(ProblemCode.UnauthorizedUser) => StatusCodes.Status401Unauthorized,
+            nameof(ProblemCode.ForbiddenReservationCancellation) => StatusCodes.Status403Forbidden,
             _ => StatusCodes.Status400BadRequest
         };
 
@@ -69,7 +73,7 @@ public static class ResultExtensions
             .ToArray();
 
         return problem;
-    } 
+    }
 
     public static IActionResult ToActionResult<T>(
        this Result<T> result,
@@ -77,8 +81,8 @@ public static class ResultExtensions
        IStringLocalizer<SharedResource> localizer,
        Func<T, IActionResult> onSuccess)
     {
-        if (result.IsSuccess)                    
-            return onSuccess(result.Value);        
+        if (result.IsSuccess)
+            return onSuccess(result.Value);
 
         var problem = result.ToProblemDetails(localizer);
         var statusCode = problem.Status ?? StatusCodes.Status400BadRequest;
@@ -92,8 +96,8 @@ public static class ResultExtensions
         IStringLocalizer<SharedResource> localizer,
         Func<IActionResult> onSuccess)
     {
-        if (result.IsSuccess)        
-            return onSuccess();        
+        if (result.IsSuccess)
+            return onSuccess();
 
         var problem = result.ToProblemDetails(localizer);
         var statusCode = problem.Status ?? StatusCodes.Status400BadRequest;

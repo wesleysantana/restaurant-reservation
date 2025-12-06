@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using RestaurantReservation.Application.DTOs.Request.Reservation;
 using RestaurantReservation.Application.Interfaces;
@@ -9,6 +10,7 @@ namespace RestaurantReservation.WebApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class ReservationsController : ControllerBase
 {
     private readonly IReservationAppService _reservationAppService;

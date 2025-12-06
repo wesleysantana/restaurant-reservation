@@ -4,9 +4,9 @@ namespace RestaurantReservation.Domain.ValueObjects;
 
 public record Capacity
 {
-    public int Value { get; private set; }
+    public short Value { get; private set; }
 
-    public Capacity(int value)
+    public Capacity(short value)
     {
         Validate(value);
         Value = value;
