@@ -1,6 +1,7 @@
 ﻿using FluentResults;
 using RestaurantReservation.Application.DTOs.Request.Reservation;
 using RestaurantReservation.Application.DTOs.Response.Reservation;
+using RestaurantReservation.Application.Extensions;
 using RestaurantReservation.Application.Interfaces;
 using RestaurantReservation.Application.Utils;
 using RestaurantReservation.Domain.Repositories;
@@ -53,4 +54,27 @@ public class ReservationAppService : IReservationAppService
 
         return Result.Ok(dto);
     }
+
+    public async Task<Result> CancelReservationAsync(CancelReservationRequest request, CancellationToken cancellationToken)
+    {
+        var reservation = await _reservationRepository
+            .GetReservationAsync(request.ReservationId, cancellationToken);
+
+        if (reservation is null)
+        {
+            return Result
+                .Fail(new Error("Reservation not found.")
+                .WithCode(ProblemCode.ReservationNotFound.ToString()));
+        }
+
+        // aqui você pode colocar regra de negócio:
+        // - não permitir cancelar reserva que já começou/passou, etc.
+
+        await _reservationRepository.CancelReservationAsync(
+            request.ReservationId,
+            cancellationToken);
+
+        return Result.Ok();
+    }
+
 }

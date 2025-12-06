@@ -25,3 +25,12 @@ Content-Type: application/json
 POST {{RestaurantReservation.WebApi_HostAddress}}/api/user/refresh-login
 
 ###
+
+POST {{RestaurantReservation.WebApi_HostAddress}}/api/reservations/make
+Content-Type: application/json
+
+{
+  //MakeReservationRequest
+}
+
+###

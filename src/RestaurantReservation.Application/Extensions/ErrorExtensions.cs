@@ -1,6 +1,6 @@
 ﻿using FluentResults;
 
-namespace RestaurantReservation.Application.Utils;
+namespace RestaurantReservation.Application.Extensions;
 
 public static class ErrorExtensions
 {

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RestaurantReservation.Application.DTOs.Request.Reservation;
 
-public class DeleteReservationRequest
+public class CancelReservationRequest
 {
     [Required(ErrorMessage = MessagesDataAnnotations.Required)]
     public Guid ReservationId { get; set; }

@@ -9,4 +9,8 @@ public interface IReservationAppService
     Task<Result<ReservationResponse>> MakeReservationAsync(
         MakeReservationRequest request,
         CancellationToken cancellationToken);
+
+    Task<Result> CancelReservationAsync(
+        CancelReservationRequest request,
+        CancellationToken cancellationToken);
 }

@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using RestaurantReservation.Application.DTOs.Request.Reservation;
 using RestaurantReservation.Application.Interfaces;
-using RestaurantReservation.Application.Utils;
 using RestaurantReservation.WebApi.Extensions;
+using RestaurantReservation.WebApi.Localization;
 
 namespace RestaurantReservation.WebApi.Controllers;
 
@@ -11,52 +12,27 @@ namespace RestaurantReservation.WebApi.Controllers;
 public class ReservationsController : ControllerBase
 {
     private readonly IReservationAppService _reservationAppService;
+    private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public ReservationsController(IReservationAppService reservationAppService)
+    public ReservationsController(IReservationAppService reservationAppService, IStringLocalizer<SharedResource> localizer)
     {
         _reservationAppService = reservationAppService;
+        _localizer = localizer;
     }
 
-    [HttpPost]
-    public async Task<IActionResult> MakeReservation(
-        [FromBody] MakeReservationRequest request,
-        CancellationToken cancellationToken)
+    [HttpPost("make-reservation")]
+    public async Task<IActionResult> MakeReservation([FromBody] MakeReservationRequest request, CancellationToken ct)
     {
-        /*
-        var result = await _reservationAppService.MakeReservationAsync(request, cancellationToken);
-        
-        if (result.IsSuccess)
-            return Ok(result.Value);
-        
-        var firstError = result.Errors.First();
+        var result = await _reservationAppService.MakeReservationAsync(request, ct);
 
-        // Se for conflito de mesa, retornar 409 Conflict
-        var statusCode = firstError.Metadata.TryGetValue(ErrorMetadataKeys.Code, out var code) &&
-                         code?.ToString() == ProblemCode.TableUnavailable.ToString()
-            ? StatusCodes.Status409Conflict
-            : StatusCodes.Status400BadRequest;
+        return result.ToActionResult(this, _localizer, value => Created());
+    }
 
-        var problem = new ProblemDetails
-        {
-            Status = statusCode,
-            Title = "Reservation could not be created",
-            Detail = string.Join("; ", result.Errors.Select(e => e.Message)),
-            Type = "https://httpstatuses.com/" + statusCode
-        };
+    [HttpDelete]
+    public async Task<IActionResult> CancelReservation([FromBody] CancelReservationRequest request, CancellationToken ct)
+    {
+        var result = await _reservationAppService.CancelReservationAsync(request, ct);
 
-        problem.Extensions["errors"] = result.Errors
-            .Select(e => new
-            {
-                e.Message,
-                Code = e.Metadata.TryGetValue("Code", out var c) ? c : null
-            });
-
-        return StatusCode(statusCode, problem);
-        */
-
-        var result = await _reservationAppService.MakeReservationAsync(request, cancellationToken);
-
-        return result.ToActionResult(this);
-
+        return result.ToActionResult(this, _localizer, () => NoContent());
     }
 }

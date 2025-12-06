@@ -2,5 +2,6 @@
 
 public enum ProblemCode
 {
-    TableUnavailable
+    TableUnavailable,
+    ReservationNotFound
 }

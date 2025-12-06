@@ -1,9 +1,11 @@
 using DotNetEnv;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using RestaurantReservation.Identity.Context;
 using RestaurantReservation.WebApi.Extensions;
 using RestaurantReservation.WebApi.Setup;
 using Serilog;
+using System.Globalization;
 using Identity = RestaurantReservation.Identity.Context;
 using Infra = RestaurantReservation.Infra.Context;
 
@@ -38,11 +40,26 @@ builder.Services.AddIdentityCore<IdentityUser>(options =>
 .AddEntityFrameworkStores<IdentityDataContext>()
 .AddDefaultTokenProviders();
 
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+var supportedCultures = new[]
+{
+    new CultureInfo("pt-BR"),
+    new CultureInfo("en-US")
+};
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new RequestCulture("pt-BR");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+    
+    options.RequestCultureProviders.Insert(0, new AcceptLanguageHeaderRequestCultureProvider());
+});
+
 builder.Services.AddAuthentication(builder.Configuration);
 DependencyInjector.RegisterServices(builder.Services);
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
 builder.Services.AddOpenApi();
 
 var app = builder.Build();

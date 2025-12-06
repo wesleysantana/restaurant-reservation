@@ -5,7 +5,6 @@ using RestaurantReservation.Application.DTOs.Response.User;
 using RestaurantReservation.Application.Interfaces;
 using RestaurantReservation.WebApi.Controllers.Shared;
 using System.Net;
-using System.Security.Claims;
 
 namespace RestaurantReservation.WebApi.Controllers;
 
@@ -20,16 +19,6 @@ public class UserController : ControllerBase
         _identityService = identityService;
     }
 
-    /// <summary>
-    /// Cadastro de usuário.
-    /// </summary>
-    /// <remarks>
-    /// </remarks>
-    /// <param name="registerUser">Dados de cadastro do usuário</param>
-    /// <returns></returns>
-    /// <response code="200">Usuário criado com sucesso</response>
-    /// <response code="400">Retorna erros de validação</response>
-    /// <response code="500">Retorna erros caso ocorram</response>
     [ProducesResponseType(typeof(RegisterUserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
@@ -50,18 +39,7 @@ public class UserController : ControllerBase
 
         return StatusCode(StatusCodes.Status500InternalServerError);
     }
-
-    /// <summary>
-    /// Login do usuário via usuário/senha.
-    /// </summary>
-    /// <remarks>
-    /// </remarks>
-    /// <param name="userLogin">Dados de login do usuário</param>
-    /// <returns></returns>
-    /// <response code="200">Login realizado com sucesso</response>
-    /// <response code="400">Retorna erros de validação</response>
-    /// <response code="401">Erro caso usuário não esteja autorizado</response>
-    /// <response code="500">Retorna erros caso ocorram</response>
+    
     [ProducesResponseType(typeof(RegisterUserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -78,10 +56,7 @@ public class UserController : ControllerBase
 
         return Unauthorized();
     }
-
-    /// <summary>
-    /// Login do usuário via refresh token.
-    /// </summary>
+   
     [ProducesResponseType(typeof(UserLoginResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
