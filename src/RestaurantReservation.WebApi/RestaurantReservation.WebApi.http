@@ -14,7 +14,7 @@ POST {{RestaurantReservation.WebApi_HostAddress}}/api/user/register
 Content-Type: application/json
 
 {
-  "email": "teste@teste.com.br",
+  "email": "teste2@teste.com.br",
   "password": "Teste@1234",
   "passwordconfirmation": "Teste@1234"
 }

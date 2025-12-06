@@ -1,13 +1,12 @@
-﻿using RestaurantReservation.Application.DTOs.Request.User;
+﻿using FluentResults;
+using RestaurantReservation.Application.DTOs.Request.User;
 using RestaurantReservation.Application.DTOs.Response.User;
 
 namespace RestaurantReservation.Application.Interfaces;
 
 public interface IIdentityService
 {
-    Task<RegisterUserResponse> RegisterUser(RegisterUserRequest registerUser);
-
-    Task<UserLoginResponse> Login(UserLoginRequest userLogin);
-
-    Task<UserLoginResponse> RefreshLogin(string usuarioId);
+    Task<Result<RegisterUserResponse>> RegisterUser(RegisterUserRequest userRegistration);
+    Task<Result<UserLoginResponse>> Login(UserLoginRequest userLogin);
+    Task<Result<UserLoginResponse>> RefreshLogin(string refreshToken);
 }

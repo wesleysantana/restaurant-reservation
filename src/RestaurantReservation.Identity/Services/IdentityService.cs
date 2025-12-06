@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using FluentResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using RestaurantReservation.Application.DTOs.Request.User;
 using RestaurantReservation.Application.DTOs.Response.User;
 using RestaurantReservation.Application.Interfaces;
+using RestaurantReservation.Application.Utils;
 using RestaurantReservation.Identity.Configurations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using RestaurantReservation.Application.Extensions;
 
 
 namespace RestaurantReservation.Identity.Services;
@@ -26,7 +29,7 @@ public class IdentityService : IIdentityService
         _jwtOptions = jwtOptions.Value;
     }
 
-    public async Task<RegisterUserResponse> RegisterUser(RegisterUserRequest userRegistration)
+    public async Task<Result<RegisterUserResponse>> RegisterUser(RegisterUserRequest userRegistration)
     {
         var identityUser = new IdentityUser
         {
@@ -37,49 +40,58 @@ public class IdentityService : IIdentityService
 
         var result = await _userManager.CreateAsync(identityUser, userRegistration.Password);
         if (result.Succeeded)
-            await _userManager.SetLockoutEnabledAsync(identityUser, false); // Desabilita o lockout para o usuário recém-criado
+        {
+            await _userManager.SetLockoutEnabledAsync(identityUser, false);
 
-        var registerUserResponse = new RegisterUserResponse(result.Succeeded);
-        if (!result.Succeeded && result.Errors.Any())
-            registerUserResponse.AddErrors(result.Errors.Select(r => r.Description));
+            var response = new RegisterUserResponse(true);
+            return Result.Ok(response);
+        }
 
-        return registerUserResponse;
+        if (!result.Errors.Any())
+            return Result.Fail<RegisterUserResponse>(new Error("Erro ao registrar usuário."));
+
+        var errors = result.Errors.Select(e => new Error(e.Description));
+
+        return Result.Fail<RegisterUserResponse>(errors);
     }
 
-    public async Task<UserLoginResponse> Login(UserLoginRequest userLogin)
+
+    public async Task<Result<UserLoginResponse>> Login(UserLoginRequest userLogin)
     {
         var user = await _userManager.FindByEmailAsync(userLogin.Email);
 
-        var userLoginResponse = new UserLoginResponse();
         if (user is null)
         {
-            userLoginResponse.AddError("Usuário ou senha estão incorretos");
-            return userLoginResponse;
+            return Result.Fail<UserLoginResponse>(
+                new Error("Usuário ou senha estão incorretos")
+                    .WithCode(ProblemCode.UnauthorizedUser.ToString()));
         }
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, userLogin.Password, true);
         if (result.Succeeded)
-            return await GenerateCredentials(user);
-
-        if (!result.Succeeded)
         {
-            if (result.IsLockedOut)
-                userLoginResponse.AddError("Essa conta está bloqueada");
-            else if (result.IsNotAllowed)
-                userLoginResponse.AddError("Essa conta não tem permissão para fazer login");
-            else if (result.RequiresTwoFactor)
-                userLoginResponse.AddError("É necessário confirmar o login no seu segundo fator de autenticação");
-            else
-                userLoginResponse.AddError("Usuário ou senha estão incorretos");
+            var response = await GenerateCredentials(user);
+            return Result.Ok(response);
         }
 
-        return userLoginResponse;
+        Error error;
+        if (result.IsLockedOut)
+            error = new Error("Essa conta está bloqueada");
+        else if (result.IsNotAllowed)
+            error = new Error("Essa conta não tem permissão para fazer login");
+        else if (result.RequiresTwoFactor)
+            error = new Error("É necessário confirmar o login no seu segundo fator de autenticação");
+        else
+            error = new Error("Usuário ou senha estão incorretos");
+
+        error = error.WithCode(ProblemCode.UnauthorizedUser.ToString());
+
+        return Result.Fail<UserLoginResponse>(error);
     }
 
-    public async Task<UserLoginResponse> RefreshLogin(string refreshToken)
-    {
-        var response = new UserLoginResponse();
 
+    public async Task<Result<UserLoginResponse>> RefreshLogin(string refreshToken)
+    {
         var tokenHandler = new JwtSecurityTokenHandler();
         ClaimsPrincipal principal;
 
@@ -102,50 +114,60 @@ public class IdentityService : IIdentityService
             if (validatedToken is not JwtSecurityToken jwtToken ||
                 jwtToken.Claims.FirstOrDefault(c => c.Type == "typ")?.Value != "refresh")
             {
-                response.AddError("Refresh token inválido");
-                return response;
+                return Result.Fail<UserLoginResponse>(
+                    new Error("Refresh token inválido")
+                        .WithCode(ProblemCode.UnauthorizedUser.ToString()));
             }
         }
         catch (SecurityTokenExpiredException)
         {
-            response.AddError("Refresh token expirado");
-            return response;
+            return Result.Fail<UserLoginResponse>(
+                new Error("Refresh token expirado")
+                    .WithCode(ProblemCode.UnauthorizedUser.ToString()));
         }
         catch
         {
-            response.AddError("Refresh token inválido");
-            return response;
+            return Result.Fail<UserLoginResponse>(
+                new Error("Refresh token inválido")
+                    .WithCode(ProblemCode.UnauthorizedUser.ToString()));
         }
 
-        // Pega o userId (sub) das claims
-        var userId = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ?? principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+                     ?? principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
         if (string.IsNullOrWhiteSpace(userId))
         {
-            response.AddError("Usuário não encontrado");
-            return response;
+            return Result.Fail<UserLoginResponse>(
+                new Error("Usuário não encontrado")
+                    .WithCode(ProblemCode.UnauthorizedUser.ToString()));
         }
 
         var user = await _userManager.FindByIdAsync(userId);
         if (user is null)
         {
-            response.AddError("Usuário não encontrado");
-            return response;
+            return Result.Fail<UserLoginResponse>(
+                new Error("Usuário não encontrado")
+                    .WithCode(ProblemCode.UnauthorizedUser.ToString()));
         }
 
         if (await _userManager.IsLockedOutAsync(user))
         {
-            response.AddError("Essa conta está bloqueada");
-            return response;
+            return Result.Fail<UserLoginResponse>(
+                new Error("Essa conta está bloqueada")
+                    .WithCode(ProblemCode.UnauthorizedUser.ToString()));
         }
 
         if (!await _userManager.IsEmailConfirmedAsync(user))
         {
-            response.AddError("Essa conta precisa confirmar seu e-mail antes de realizar o login");
-            return response;
+            return Result.Fail<UserLoginResponse>(
+                new Error("Essa conta precisa confirmar seu e-mail antes de realizar o login")
+                    .WithCode(ProblemCode.UnauthorizedUser.ToString()));
         }
-        
-        return await GenerateCredentials(user);
+
+        var loginResponse = await GenerateCredentials(user);
+        return Result.Ok(loginResponse);
     }
+
 
     private async Task<UserLoginResponse> GenerateCredentials(IdentityUser user)
     {
