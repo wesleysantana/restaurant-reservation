@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using RestaurantReservation.Application.DTOs.Request.Table;
+using RestaurantReservation.Application.DTOs.Response.Table;
 using RestaurantReservation.Application.Interfaces;
 using RestaurantReservation.WebApi.Extensions;
 using RestaurantReservation.WebApi.Localization;
@@ -11,12 +12,12 @@ namespace RestaurantReservation.WebApi.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class TablesController : ControllerBase
+public class TableController : ControllerBase
 {
     private readonly ITableAppService _tableAppService;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
-    public TablesController(ITableAppService tableAppService, IStringLocalizer<SharedResource> localizer)
+    public TableController(ITableAppService tableAppService, IStringLocalizer<SharedResource> localizer)
     {
         _tableAppService = tableAppService;
         _localizer = localizer;
@@ -33,42 +34,50 @@ public class TablesController : ControllerBase
 
     // GET /mesas/{id}
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    public async Task<ActionResult<TableResponse>> GetById(Guid id, CancellationToken cancellationToken)
     {
         var result = await _tableAppService.GetByIdAsync(id, cancellationToken);
 
-        return result.ToActionResult(this, _localizer, dto => Ok(dto));
+        return (ActionResult)result.ToActionResult(this, _localizer, dto => Ok(dto));
     }
 
     // POST /mesas (apenas admin, como pede o desafio)
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create([FromBody] CreateTableRequest request, CancellationToken ct)
+    public async Task<ActionResult<TableResponse>> Create([FromBody] CreateTableRequest request, CancellationToken ct)
     {
+        // Condicional desnecessário em produção, mas útil para testes unitários
+        if (!ModelState.IsValid)
+            return BadRequest();
+
         var result = await _tableAppService.CreateAsync(request, ct);
 
-        return result.ToActionResult(this, _localizer, dto => Created());
+        return (ActionResult)result.ToActionResult(this, _localizer, dto => Created($"/api/table/{dto.Id}", dto));
     }
 
     // PATCH /mesas/{id}
     [HttpPatch("{id:guid}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateTableRequest request, CancellationToken ct)
+    public async Task<ActionResult> Update(Guid id, [FromBody] UpdateTableRequest request, CancellationToken ct)
     {
+        // Condicional desnecessário em produção, mas útil para testes unitários
+        if (!ModelState.IsValid)
+            return BadRequest();
+
         request.Id = id;
 
         var result = await _tableAppService.UpdateAsync(request, ct);
 
-        return result.ToActionResult(this, _localizer, () => NoContent());
+        return (ActionResult)result.ToActionResult(this, _localizer, () => NoContent());
     }
 
     // DELETE /mesas/{id}
     [HttpDelete("{id:guid}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    public async Task<ActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         var result = await _tableAppService.DeleteAsync(id, cancellationToken);
 
-        return result.ToActionResult(this, _localizer, () => NoContent());
+        return (ActionResult)result.ToActionResult(this, _localizer, () => NoContent());
     }
 }

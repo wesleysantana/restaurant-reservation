@@ -28,6 +28,10 @@ public class UserController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterUserRequest registerUser)
     {
+        // Condicional desnecessário em produção, mas útil para testes unitários
+        if (!ModelState.IsValid)
+            return BadRequest();
+
         var result = await _identityService.RegisterUser(registerUser);
 
         return result.ToActionResult(this, _localizer, dto => Ok(dto));
@@ -40,6 +44,10 @@ public class UserController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<RegisterUserResponse>> Login(UserLoginRequest userLogin)
     {
+        // Condicional desnecessário em produção, mas útil para testes unitários
+        if (!ModelState.IsValid)
+            return BadRequest();
+
         var result = await _identityService.Login(userLogin);
 
         return (ActionResult)result.ToActionResult(this, _localizer, dto => Ok(dto));
@@ -53,6 +61,9 @@ public class UserController : ControllerBase
     [HttpPost("refresh-login")]
     public async Task<ActionResult<UserLoginResponse>> RefreshLogin([FromBody] RefreshLoginRequest request)
     {
+        // Condicional desnecessário em produção, mas útil para testes unitários
+        if (!ModelState.IsValid || string.IsNullOrWhiteSpace(request.RefreshToken))
+            return BadRequest();
         var result = await _identityService.RefreshLogin(request.RefreshToken);
 
         return (ActionResult)result.ToActionResult(this, _localizer, dto => Ok(dto));

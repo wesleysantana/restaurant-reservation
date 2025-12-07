@@ -22,6 +22,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.env = .env
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantReservation.Test", "tests\RestaurantReservation.Test\RestaurantReservation.Test.csproj", "{690268D7-EFC9-4367-ABD8-085AAADE9556}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +50,10 @@ Global
 		{2D8DE96D-4E6E-47F0-9C1B-E65D42122842}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D8DE96D-4E6E-47F0-9C1B-E65D42122842}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D8DE96D-4E6E-47F0-9C1B-E65D42122842}.Release|Any CPU.Build.0 = Release|Any CPU
+		{690268D7-EFC9-4367-ABD8-085AAADE9556}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{690268D7-EFC9-4367-ABD8-085AAADE9556}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{690268D7-EFC9-4367-ABD8-085AAADE9556}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{690268D7-EFC9-4367-ABD8-085AAADE9556}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,6 +64,7 @@ Global
 		{DFA866C3-D03F-4134-8CC7-759573D1508B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{6AAA6CB3-5300-449F-B2D9-5ECDC168AF36} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{2D8DE96D-4E6E-47F0-9C1B-E65D42122842} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{690268D7-EFC9-4367-ABD8-085AAADE9556} = {C5EE40E6-B4F8-46D6-BF1B-93087B55979F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F7985E82-A5A3-4312-8F6E-DA864871DCAF}
