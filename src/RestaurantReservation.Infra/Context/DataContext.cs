@@ -12,6 +12,7 @@ public class DataContext : DbContext
 
     public DbSet<Reservation> Reservations { get; set; }
     public DbSet<Table> Tables { get; set; }
+    public DbSet<BusinessHoursRule> BusinessHoursRules { get; set; }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {

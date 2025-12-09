@@ -34,3 +34,76 @@ Content-Type: application/json
 }
 
 ###
+
+GET {{RestaurantReservation.WebApi_HostAddress}}/api/businesshours
+
+###
+
+POST {{RestaurantReservation.WebApi_HostAddress}}/api/businesshours
+Content-Type: application/json
+
+{
+  //CreateBusinessHoursRuleRequest
+}
+
+###
+
+DELETE {{RestaurantReservation.WebApi_HostAddress}}/api/businesshours/{id:guid}
+
+###
+
+GET {{RestaurantReservation.WebApi_HostAddress}}/api/businesshours/{id:guid}
+
+###
+
+PUT {{RestaurantReservation.WebApi_HostAddress}}/api/businesshours/{id:guid}
+Content-Type: application/json
+
+{
+  //UpdateBusinessHoursRuleRequest
+}
+
+###
+
+DELETE {{RestaurantReservation.WebApi_HostAddress}}/api/reservation
+
+###
+
+POST {{RestaurantReservation.WebApi_HostAddress}}/api/reservation/make-reservation
+Content-Type: application/json
+
+{
+  //MakeReservationRequest
+}
+
+###
+
+GET {{RestaurantReservation.WebApi_HostAddress}}/api/table
+
+###
+
+POST {{RestaurantReservation.WebApi_HostAddress}}/api/table
+Content-Type: application/json
+
+{
+  //CreateTableRequest
+}
+
+###
+
+DELETE {{RestaurantReservation.WebApi_HostAddress}}/api/table/{id:guid}
+
+###
+
+GET {{RestaurantReservation.WebApi_HostAddress}}/api/table/{id:guid}
+
+###
+
+PATCH {{RestaurantReservation.WebApi_HostAddress}}/api/table/{id:guid}
+Content-Type: application/json
+
+{
+  //UpdateTableRequest
+}
+
+###

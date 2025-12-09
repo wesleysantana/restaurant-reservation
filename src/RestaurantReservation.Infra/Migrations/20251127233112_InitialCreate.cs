@@ -93,6 +93,11 @@ namespace RestaurantReservation.Infra.Migrations
                 table: "tables",
                 column: "status");
 
+            // -----------------------------------------------
+            // Criação manual
+            // Habilitar extensões necessárias
+            // Contraints CHECK, time_range e GIST no-overlap
+            // -----------------------------------------------
             migrationBuilder.Sql("CREATE EXTENSION IF NOT EXISTS btree_gist;");
             migrationBuilder.Sql("CREATE EXTENSION IF NOT EXISTS pgcrypto;");
 

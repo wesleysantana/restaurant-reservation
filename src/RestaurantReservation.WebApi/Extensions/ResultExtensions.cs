@@ -53,6 +53,7 @@ public static class ResultExtensions
             nameof(ProblemCode.InvalidReservationCancellation) => StatusCodes.Status422UnprocessableEntity,
             nameof(ProblemCode.UnauthorizedUser) => StatusCodes.Status401Unauthorized,
             nameof(ProblemCode.ForbiddenReservationCancellation) => StatusCodes.Status403Forbidden,
+            nameof(ProblemCode.InvalidBusinessHours) => StatusCodes.Status422UnprocessableEntity,
             _ => StatusCodes.Status400BadRequest
         };
 

@@ -14,6 +14,7 @@ public static class DependencyInjector
         #region Services
 
         services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IBusinessHoursAppService, BusinessHoursAppService>();
         services.AddScoped<IReservationAppService, ReservationAppService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<ITableAppService, TableAppService>();
@@ -23,6 +24,7 @@ public static class DependencyInjector
         #region Repositories
 
         services.AddScoped<IReservationRepository, ReservationRepository>();
+        services.AddScoped<IBusinessHoursRuleRepository, BusinessHoursRuleRepository>();
         services.AddScoped<ITableRepository, TableRepository>();
 
         #endregion Repositories

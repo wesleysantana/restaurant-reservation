@@ -17,6 +17,7 @@ public class ReservationAppServiceTests
     private readonly Mock<IReservationRepository> _reservationRepositoryMock;
     private readonly Mock<ITableRepository> _tableRepositoryMock;
     private readonly Mock<ICurrentUserService> _currentUserServiceMock;
+    private readonly Mock<IBusinessHoursAppService> _businessHoursServiceMock;
     private readonly ReservationAppService _service;
 
     public ReservationAppServiceTests()
@@ -24,10 +25,12 @@ public class ReservationAppServiceTests
         _reservationRepositoryMock = new Mock<IReservationRepository>();
         _currentUserServiceMock = new Mock<ICurrentUserService>();
         _tableRepositoryMock = new Mock<ITableRepository>();
+        _businessHoursServiceMock = new Mock<IBusinessHoursAppService>();
 
         _service = new ReservationAppService(
             _reservationRepositoryMock.Object,
             _currentUserServiceMock.Object,
+            _businessHoursServiceMock.Object,
             _tableRepositoryMock.Object);
     }
 
@@ -38,6 +41,10 @@ public class ReservationAppServiceTests
         _currentUserServiceMock
             .Setup(x => x.UserId)
             .Returns((Guid?)null);
+
+        _businessHoursServiceMock
+            .Setup(x => x.IsOpenAsync(It.IsAny<Instant>(), It.IsAny<Instant>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         var request = new MakeReservationRequest
         {
@@ -53,7 +60,7 @@ public class ReservationAppServiceTests
         // Assert
         Assert.True(result.IsFailed);
         var error = Assert.Single(result.Errors);
-        Assert.Equal(ProblemCode.UnauthorizedUser.ToString(), error.Metadata["Code"]);
+        Assert.Equal(ProblemCode.UnauthorizedUser.ToString(), error.Metadata["Code"]);        
     }
 
     [Fact]
@@ -79,6 +86,10 @@ public class ReservationAppServiceTests
         _tableRepositoryMock
             .Setup(x => x.GetByIdAsync(tableId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(table);
+
+        _businessHoursServiceMock
+            .Setup(x => x.IsOpenAsync(It.IsAny<Instant>(), It.IsAny<Instant>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         var request = new MakeReservationRequest
         {
@@ -151,6 +162,10 @@ public class ReservationAppServiceTests
             .Setup(x => x.GetByIdAsync(tableId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(table);
 
+        _businessHoursServiceMock
+          .Setup(x => x.IsOpenAsync(It.IsAny<Instant>(), It.IsAny<Instant>(), It.IsAny<CancellationToken>()))
+          .ReturnsAsync(true);
+
         var request = new MakeReservationRequest
         {
             TableId = tableId,
@@ -182,7 +197,7 @@ public class ReservationAppServiceTests
                 endsAt,
                 request.NumberOfGuests,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(reservation);
+            .ReturnsAsync(reservation);      
 
         // Act
         var result = await _service.MakeReservationAsync(request, CancellationToken.None);
@@ -234,7 +249,7 @@ public class ReservationAppServiceTests
             .Setup(x => x.GetReservationAsync(
                 request.ReservationId,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Reservation?)null);
+            .ReturnsAsync((Reservation?)null);      
 
         // Act
         var result = await _service.CancelReservationAsync(request, CancellationToken.None);
@@ -371,6 +386,78 @@ public class ReservationAppServiceTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task MakeReservationAsync_ShouldFail_WhenOutsideBusinessHours()
+    {
+        // Arrange
+        var tableId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+
+        // Horário "fora" do funcionamento do restaurante
+        var startsAt = Instant.FromDateTimeUtc(DateTime.UtcNow.AddDays(1).AddHours(3)); // 03:00 da manhã
+        var endsAt = startsAt.Plus(Duration.FromHours(1)); // 04:00 da manhã
+
+        var request = new MakeReservationRequest
+        {
+            TableId = tableId,
+            NumberOfGuests = 2,
+            StartsAt = startsAt,
+            EndsAt = endsAt
+        };
+
+        // Usuário autenticado
+        _currentUserServiceMock.Setup(x => x.UserId).Returns(userId);
+
+        // Mesa existe
+        _tableRepositoryMock
+            .Setup(x => x.GetByIdAsync(tableId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Table(
+                new Name("Mesa 01"),
+                new Capacity(4),
+                StatusTable.Disponivel
+            ));
+
+        // Mesa disponível no horário
+        _reservationRepositoryMock
+            .Setup(x => x.IsTableAvailableAsync(
+                tableId,
+                startsAt,
+                endsAt,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        // Restaurante fechado no horário
+        _businessHoursServiceMock
+            .Setup(x => x.IsOpenAsync(startsAt, endsAt, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        // Act
+        var result = await _service.MakeReservationAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.True(result.IsFailed);
+        var error = Assert.Single(result.Errors);
+        Assert.Equal(ProblemCode.InvalidBusinessHours.ToString(), error.Metadata["Code"]);       
+
+        // Certifica que a reserva NÃO foi criada
+        _reservationRepositoryMock.Verify(
+            x => x.MakeReservationAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Instant>(),
+                It.IsAny<Instant>(),
+                It.IsAny<short>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        // Certifica que a regra foi realmente consultada
+        _businessHoursServiceMock.Verify(
+            x => x.IsOpenAsync(startsAt, endsAt, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+
 
     private static Reservation CreateReservationWithCustomDates(
         Guid userId,

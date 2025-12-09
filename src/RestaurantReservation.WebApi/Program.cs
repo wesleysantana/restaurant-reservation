@@ -1,6 +1,7 @@
 using DotNetEnv;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
+using NodaTime;
 using RestaurantReservation.Identity.Context;
 using RestaurantReservation.WebApi.Extensions;
 using RestaurantReservation.WebApi.Setup;
@@ -55,7 +56,10 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.RequestCultureProviders.Insert(0, new AcceptLanguageHeaderRequestCultureProvider());
 });
 
+builder.Services.AddSingleton(DateTimeZoneProviders.Tzdb["America/Sao_Paulo"]);
+
 builder.Services.AddAuthentication(builder.Configuration);
+
 DependencyInjector.RegisterServices(builder.Services);
 
 builder.Services.AddHttpContextAccessor();

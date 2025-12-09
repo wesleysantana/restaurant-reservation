@@ -6,5 +6,6 @@ public enum ProblemCode
     ReservationNotFound,
     InvalidReservationCancellation,
     UnauthorizedUser,
-    ForbiddenReservationCancellation
+    ForbiddenReservationCancellation,
+    InvalidBusinessHours
 }

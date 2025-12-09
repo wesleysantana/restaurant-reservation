@@ -5,15 +5,21 @@ public enum StatusTable
     Disponivel,
     Reservada,
     Inativa,
-    //Available,
-    //Reserved,
-    //Inactive
 }
 
 public enum StatusReservation
 {
     Ativo,
     Cancelado
-    //Active,
-    //Canceled
+}
+
+public enum WeekDay
+{
+    Sunday,
+    Monday,
+    Tuesday,
+    Wednesday,
+    Thursday,
+    Friday,
+    Saturday
 }

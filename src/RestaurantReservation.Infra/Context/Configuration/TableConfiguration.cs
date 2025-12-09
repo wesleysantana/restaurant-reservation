@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RestaurantReservation.Domain.Entities;
-using RestaurantReservation.Domain.ValueObjects;
 
 namespace RestaurantReservation.Infra.Context.Configuration;
 
@@ -33,7 +32,7 @@ public class TableConfiguration : IEntityTypeConfiguration<Table>
             name.HasIndex(n => n.Value)
                 .IsUnique()
                 .HasDatabaseName("ix_tables_name_unique");
-        });      
+        });
 
         builder.OwnsOne(t => t.Capacity, capacity =>
         {
@@ -50,16 +49,16 @@ public class TableConfiguration : IEntityTypeConfiguration<Table>
             .HasConversion<string>()
             .HasMaxLength(20)
             .IsRequired();
-        
+
         builder.Property(t => t.Active)
             .HasColumnName("active")
             .IsRequired();
-       
+
         builder.Property(t => t.CreatedAt)
             .HasColumnName("created_at")
             .HasDefaultValueSql("now()")
-            .IsRequired();     
-        
+            .IsRequired();
+
         builder.HasIndex(t => t.Status)
             .HasDatabaseName("ix_tables_status");
         builder.HasIndex(t => t.Active)

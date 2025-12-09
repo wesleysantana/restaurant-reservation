@@ -14,15 +14,19 @@ public class ReservationAppService : IReservationAppService
 {
     private readonly IReservationRepository _reservationRepository;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IBusinessHoursAppService _businessHoursService;
     private readonly ITableRepository _tableRepository;
+
 
     public ReservationAppService(
         IReservationRepository reservationRepository,
         ICurrentUserService currentUserService,
+        IBusinessHoursAppService businessHoursService,
         ITableRepository tableRepository)
     {
         _reservationRepository = reservationRepository;
         _currentUserService = currentUserService;
+        _businessHoursService = businessHoursService;
         _tableRepository = tableRepository;
     }
 
@@ -37,6 +41,15 @@ public class ReservationAppService : IReservationAppService
                 new Error("User not authenticated.")
                     .WithCode(ProblemCode.UnauthorizedUser.ToString()));
         }
+
+        // Verifica dia/horário de funcionamento       
+        if (!await _businessHoursService.IsOpenAsync(request.StartsAt, request.EndsAt, cancellationToken))
+        {
+            return Result
+                .Fail<ReservationResponse>(new Error("Reserva fora do horário de funcionamento.")
+                    .WithCode(ProblemCode.InvalidBusinessHours.ToString()));
+        }
+
 
         // 1) Buscar mesa
         var table = await _tableRepository.GetByIdAsync(request.TableId, cancellationToken);
