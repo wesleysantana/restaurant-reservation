@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using RestaurantReservation.Domain.Entities;
+using RestaurantReservation.Domain.Enums;
 using RestaurantReservation.Domain.Repositories;
 using RestaurantReservation.Infra.Context;
 
@@ -26,6 +27,7 @@ public class ReservationRepository : IReservationRepository
 
         var existsConflict = await Set.AnyAsync(x =>
             x.TableId == tableId &&
+            x.Status == StatusReservation.Ativo &&
             x.StartsAt < endsAt &&
             x.EndsAt > startsAt,
             cancellationToken);
