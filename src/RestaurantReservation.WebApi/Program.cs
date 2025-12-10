@@ -14,16 +14,27 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console() // Configure um sink para o console para ver os logs iniciais
     .CreateBootstrapLogger(); // Cria um logger leve para uso inicial
 
-var currentDir = Directory.GetCurrentDirectory();
-string envPath = Path.Combine(currentDir, "..", "..", ".env");
-string normalizedPath = Path.GetFullPath(envPath);
-if (!File.Exists(normalizedPath))
-{
-    Log.Warning($"ARQUIVO .ENV NÃO ENCONTRADO. O caminho esperado era: {normalizedPath}");
-    return;
-}
+//var currentDir = Directory.GetCurrentDirectory();
 
-Env.Load(normalizedPath);
+//// possíveis caminhos: dev (bin/Debug ? raiz) e container (/app/.env)
+//var possiblePaths = new[]
+//{
+//    Path.GetFullPath(Path.Combine(currentDir, "..", "..", ".env")),
+//    Path.Combine(currentDir, ".env"),
+//};
+
+//var envFile = possiblePaths.FirstOrDefault(File.Exists);
+
+//if (envFile is null)
+//{
+//    Log.Warning($"ARQUIVO .ENV NÃO ENCONTRADO. Caminhos verificados: {string.Join(", ", possiblePaths)}");
+//}
+//else
+//{
+//    Log.Information($"Carregando variáveis de ambiente do arquivo: {envFile}");
+//    Env.Load(envFile);
+//}
+
 
 var builder = WebApplication.CreateBuilder(args);
 
