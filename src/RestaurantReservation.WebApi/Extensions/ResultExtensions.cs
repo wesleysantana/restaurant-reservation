@@ -8,23 +8,17 @@ namespace RestaurantReservation.WebApi.Extensions;
 
 public static class ResultExtensions
 {
-    public static ProblemDetails ToProblemDetails<T>(
-       this Result<T> result,
-       IStringLocalizer<SharedResource> localizer)
+    public static ProblemDetails ToProblemDetails<T>(this Result<T> result, IStringLocalizer<SharedResource> localizer)
     {
         return CreateProblemDetails(result, localizer);
     }
 
-    public static ProblemDetails ToProblemDetails(
-      this Result result,
-      IStringLocalizer<SharedResource> localizer)
+    public static ProblemDetails ToProblemDetails(this Result result, IStringLocalizer<SharedResource> localizer)
     {
         return CreateProblemDetails(result, localizer);
     }
 
-    private static ProblemDetails CreateProblemDetails(
-        ResultBase resultBase,
-        IStringLocalizer<SharedResource> localizer)
+    private static ProblemDetails CreateProblemDetails(ResultBase resultBase, IStringLocalizer<SharedResource> localizer)
     {
         var firstError = resultBase.Errors.FirstOrDefault() ?? new Error("Unknown error");
 

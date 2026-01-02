@@ -1,30 +1,24 @@
-# 🍽 Restaurant Reservation System  
-API REST completa para gerenciamento de reservas de restaurante, com autenticação JWT, regras de horário configuráveis, validação de disponibilidade e infraestrutura Docker.
+# 🍽 Restaurant Reservation System
 
-## 📘 Descrição Geral
-Este projeto implementa um sistema robusto de reservas com:
-- Cadastro e autenticação de usuários (com função Admin).
+API REST para gerenciamento de reservas de restaurante, com autenticação JWT, regras de horário configuráveis, validação de disponibilidade e execução via Docker.
+
+## Principais funcionalidades
+- Cadastro e autenticação de usuários (Identity + JWT).
+- Usuário Admin criado automaticamente (via variáveis de ambiente).
 - CRUD de mesas.
-- Configuração de horários de funcionamento.
-- Criação e cancelamento de reservas.
-- Validação contra conflitos e horários inválidos.
-- Execução simplificada via Docker.
-- Uso de coleção Postman para testar os endpoints.
+- Regras de horário de funcionamento (semanais e datas específicas/feriados).
+- Criação/cancelamento de reservas com validações (conflito, capacidade, horário).
 
-## 🛠 Tecnologias Utilizadas
-- ASP.NET Core 10
-- Entity Framework Core
-- Identity + JWT Bearer
-- PostgreSQL
-- NodaTime
-- FluentResults
-- Serilog
-- Docker + docker-compose
+## Tecnologias
+- ASP.NET Core
+- Entity Framework Core + Identity
+- PostgreSQL + Npgsql
+- JWT Bearer
+- NodaTime, Serilog
+- Docker / Docker Compose
 - xUnit + Moq
 
-## 🧱 Arquitetura
-Clean Architecture / DDD-lite:
-
+## Estrutura (alto nível)
 ```
 src/
  ├── RestaurantReservation.WebApi
@@ -34,273 +28,73 @@ src/
  └── RestaurantReservation.Identity
 ```
 
-## 🗄 Modelagem do Banco
-- Mesas (`tables`)
-- Reservas (`reservations`)
-- Regras de horário (`business_hours_rules`)
+## Como executar
 
-Destaque: constraint avançada do PostgreSQL que impede reservas simultâneas:
-
-```sql
-EXCLUDE USING gist (
-  table_id WITH =,
-  time_range WITH &&
-)
-WHERE (status = 'Ativo');
-```
-
-## 📜 Regras de Negócio
-- Reserva só pode ocorrer:
-  - se o horário estiver dentro do expediente,
-  - se não houver conflito,
-  - se a mesa suportar o número de convidados.
-- Cancelamento apenas de reservas ativas.
-- Regras de funcionamento configuráveis:
-  - por dia da semana,
-  - por período,
-  - por dias específicos/feriados.
-
-## 🔐 Autenticação
-- JWT Bearer Tokens.
-- Admin gerado automaticamente via variáveis de ambiente (ou user-secrets em desenvolvimento).
-
-## 🕒 Configuração de Horários
-Exemplo de regra semanal:
-```json
-{
-  "startDate": "2025-03-01",
-  "endDate": "2025-03-31",
-  "weekDay": 1,
-  "open": "09:00",
-  "close": "18:00",
-  "isClosed": false
-}
-```
-
-Exemplo de feriado:
-```json
-{ "specificDate": "2025-03-21", "isClosed": true }
-```
-
-## ▶ Como Executar o Projeto
-
-### 🔹 Via Docker
-Na raiz da solução:
-
+### Opção A) Docker (recomendado para testar rapidamente)
+1) Copie o arquivo de exemplo:
 ```sh
-docker-compose up --build
+cp .env-example .env
 ```
 
-API:
-```
-http://localhost:5003
-```
-
-Admin criado automaticamente (via variáveis/arquivo `.env`):
-
-```
-ADMIN_EMAIL=admin@restaurant.com
-ADMIN_PASSWORD=Admin@123
-ADMIN_ROLE=Admin
-```
-
-### 🔹 Localmente (sem Docker)
-
-Configurar user-secrets (na pasta `src/RestaurantReservation.WebApi`):
+2) Suba tudo com Docker Compose (na raiz do repositório):
 ```sh
-dotnet user-secrets init
-dotnet user-secrets set "ADMIN_EMAIL" "admin@restaurant.com"
-dotnet user-secrets set "ADMIN_PASSWORD" "Admin@123"
-dotnet user-secrets set "ADMIN_ROLE" "Admin"
+docker compose up --build
 ```
 
-Rodar migrations (banco principal):
+3) Acesse:
+- Swagger: http://localhost:5003/swagger
+
+**Admin padrão (vem do .env):**
+- Email: `admin@restaurant.com`
+- Password: `Admin@123`
+
+> Observação: no Docker, o hostname do Postgres deve ser o nome do serviço do compose (por padrão, `db`). Por isso o `.env-example` usa `POSTGRES_HOST=db`.
+
+---
+
+### Opção B) Local (Visual Studio / dotnet run)
+Pré-requisitos:
+- .NET SDK
+- PostgreSQL rodando localmente (ex.: porta 5432)
+
+1) Configuração
+- Este repositório inclui um `appsettings.Development.json` com valores de desenvolvimento (incluindo `JwtOptions:SecurityKey`) para facilitar o teste local.
+
+2) Migrações (Infra e Identity)
+Na raiz do repositório:
 ```sh
 dotnet ef database update -p src/RestaurantReservation.Infra -s src/RestaurantReservation.WebApi
-```
-
-Rodar migrations do Identity
-```sh
 dotnet ef database update -p src/RestaurantReservation.Identity -s src/RestaurantReservation.WebApi
 ```
 
-Rodar API:
+3) Executar API
 ```sh
 dotnet run --project src/RestaurantReservation.WebApi
 ```
 
----
-
-## 🧪 Testes
-- Testes de unidade para Services (Reservation, Table, Identity, BusinessHours).
-- Testes de unidade para Controllers.
-- Cenários cobrindo:
-  - conflitos de reservas,
-  - capacidade de mesa,
-  - horário de funcionamento,
-  - autenticação e autorização.
+4) Acesse:
+- Swagger: https://localhost:<porta>/swagger  (ou veja a porta no console)
+- Se você preferir padronizar a porta, execute com `--urls`.
 
 ---
 
-## 🌐 Testando a API com Postman
+## Variáveis de ambiente (Docker)
+O arquivo `.env-example` mostra o conjunto mínimo para rodar via Docker Compose.
+Destaques:
+- Para configurar seções do ASP.NET Core via env var, use `__` (ex.: `JwtOptions__SecurityKey` vira `JwtOptions:SecurityKey`).
+- O `IdentitySeeder` usa `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_ROLE` para criar o Admin automaticamente.
 
-Você pode testar a API usando o Postman (ou qualquer cliente HTTP).
+## Testando com Postman
+Fluxo típico:
+1) `POST /api/user/register`
+2) `POST /api/user/login` (use o admin do `.env`)
+3) Use o `accessToken` como `Bearer Token` nas rotas protegidas.
 
-### 1. URL base
-
-Se estiver rodando via Docker ou localmente conforme configuração acima:
-
-```text
-http://localhost:5003
-```
-
-### 2. Autenticação
-
-#### 2.1. Registrar usuário
-
-`POST /api/user/register`
-
-Body (JSON):
-```json
-{
-  "email": "user@teste.com",
-  "password": "Teste@1234",
-  "passwordConfirmation": "Teste@1234"
-}
-```
-
-#### 2.2. Login
-
-`POST /api/user/login`
-
-Body (JSON):
-```json
-{
-  "email": "admin@restaurant.com",
-  "password": "Admin@123"
-}
-```
-
-Resposta (200) retorna um objeto com o `accessToken` (JWT).  
-No Postman, configure:
-
-- Aba **Authorization**
-- Type: `Bearer Token`
-- Token: cole o valor do `accessToken`.
-
-A partir daí, use esse token nas rotas protegidas.
+## Modelagem (destaque)
+Este projeto utiliza um constraint avançado no PostgreSQL para evitar reservas simultâneas, garantindo integridade no nível do banco.
 
 ---
 
-### 3. Endpoints principais
-
-#### 3.1. Mesas
-
-**Criar mesa (Admin)**  
-`POST /api/table`
-
-Body:
-```json
-{
-  "name": "Mesa 01",
-  "capacity": 4
-}
-```
-
-**Listar mesas**  
-`GET /api/table`
-
-**Obter mesa por id**  
-`GET /api/table/{id}`
-
-**Atualizar mesa (Admin)**  
-`PATCH /api/table/{id}`
-
-Body:
-```json
-{
-  "name": "Mesa 01 - Atualizada",
-  "capacity": 6,
-  "status": "Disponivel"
-}
-```
-
-**Excluir mesa (Admin)**  
-`DELETE /api/table/{id}`
-
----
-
-#### 3.2. Regras de horário (BusinessHours)
-
-**Listar regras**  
-`GET /api/businesshours`
-
-**Criar regra**  
-`POST /api/businesshours`
-
-Body (exemplo regra semanal):
-```json
-{
-  "startDate": "2025-04-01",
-  "endDate": "2025-04-30",
-  "weekDay": 1,
-  "specificDate": null,
-  "open": "11:00:00",
-  "close": "23:00:00",
-  "isClosed": false
-}
-```
-
-**Obter regra por id**  
-`GET /api/businesshours/{id}`
-
-**Atualizar regra**  
-`PUT /api/businesshours/{id}`
-
-**Excluir regra**  
-`DELETE /api/businesshours/{id}`
-
----
-
-#### 3.3. Reservas
-
-**Criar reserva**  
-`POST /api/reservations/make`
-
-Body:
-```json
-{
-  "tableId": "GUID_DA_MESA",
-  "startsAt": "2025-04-10T19:00:00Z",
-  "endsAt":   "2025-04-10T20:00:00Z",
-  "numberOfGuests": 2
-}
-```
-
-**Cancelar reserva**  
-Dependendo da sua API, pode ser via `DELETE /api/reservation` com body, ou rota específica.  
-Exemplo com body:
-
-`DELETE /api/reservation`
-
-```json
-{
-  "reservationId": "GUID_DA_RESERVA"
-}
-```
-
----
-
-## 🧠 Decisões Técnicas Importantes
-- Uso de NodaTime para precisão temporal (Instant, LocalDateTime, etc.).
-- GIST + `tstzrange` para garantir integridade e evitar sobreposição de reservas.
-- FluentResults para padronização de sucesso/erro e integração com ProblemDetails.
-- Arquitetura limpa com separação forte entre camadas (Domain, Application, Infra, WebApi, Identity).
-- Execução altamente reprodutível via Docker e `docker-compose`.
-
-## ⭐ O que Destacar no Portfólio
-- Projeto realista com regras complexas de negócio.
-- Uso de recursos avançados do PostgreSQL para consistência forte.
-- Solução completa: API + autenticação + banco + Docker + testes.
-- Código bem estruturado, expansível e testável.
-- Documentação de uso via Postman, com fluxo completo (auth → mesas → horários → reservas).
+## Notas para avaliadores
+- Chaves e credenciais presentes em arquivos de desenvolvimento são **apenas para teste local**.
+- Para produção, a configuração deve vir de um gerenciador de segredos/variáveis de ambiente e as credenciais devem ser substituídas.

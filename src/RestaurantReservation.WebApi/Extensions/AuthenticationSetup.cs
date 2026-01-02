@@ -10,16 +10,24 @@ public static class AuthenticationSetup
 {
     public static void AddAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        var jwtAppSettingOptions = configuration.GetSection(nameof(JwtOptions));
-        var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes((configuration.GetSection("JwtOptions:SecurityKey").Value)!));
+        var jwtSection = configuration.GetSection("JwtOptions");
+
+        var securityKeyValue = jwtSection["SecurityKey"];
+        if (string.IsNullOrWhiteSpace(securityKeyValue))
+            throw new InvalidOperationException(
+                "JwtOptions:SecurityKey não configurado. " +
+                "Configure em appsettings.Development.json (local) ou via env var JwtOptions__SecurityKey (Docker)."
+            );
+
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityKeyValue));
 
         services.Configure<JwtOptions>(options =>
         {
-            options.Issuer = jwtAppSettingOptions[nameof(JwtOptions.Issuer)]!;
-            options.Audience = jwtAppSettingOptions[nameof(JwtOptions.Audience)]!;
+            options.Issuer = jwtSection[nameof(JwtOptions.Issuer)]!;
+            options.Audience = jwtSection[nameof(JwtOptions.Audience)]!;
             options.SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha512);
-            options.AccessTokenExpirationInMinutes = int.Parse(jwtAppSettingOptions[nameof(JwtOptions.AccessTokenExpirationInMinutes)] ?? "0");
-            options.RefreshTokenExpirationInMinutes = int.Parse(jwtAppSettingOptions[nameof(JwtOptions.RefreshTokenExpirationInMinutes)] ?? "0");
+            options.AccessTokenExpirationInMinutes = int.Parse(jwtSection[nameof(JwtOptions.AccessTokenExpirationInMinutes)] ?? "0");
+            options.RefreshTokenExpirationInMinutes = int.Parse(jwtSection[nameof(JwtOptions.RefreshTokenExpirationInMinutes)] ?? "0");
         });
 
         services.Configure<IdentityOptions>(options =>
@@ -71,14 +79,4 @@ public static class AuthenticationSetup
             };
         });
     }
-
-    //public static void AddAuthorizationPolicies(this IServiceCollection services)
-    //{
-    //    services.AddSingleton<IAuthorizationHandler, HorarioComercialHandler>();
-    //    services.AddAuthorization(options =>
-    //    {
-    //        options.AddPolicy(Policies.HorarioComercial, policy =>
-    //            policy.Requirements.Add(new HorarioComercialRequirement()));
-    //    });
-    //}
 }

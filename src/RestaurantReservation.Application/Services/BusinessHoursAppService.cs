@@ -129,8 +129,6 @@ public class BusinessHoursAppService : IBusinessHoursAppService
         var startTime = new TimeOnly(startLocal.TimeOfDay.Hour, startLocal.TimeOfDay.Minute, startLocal.TimeOfDay.Second);
 
         var endTime = new TimeOnly(endLocal.TimeOfDay.Hour, endLocal.TimeOfDay.Minute, endLocal.TimeOfDay.Second);
-        //var startTime = TimeOnly.FromTimeSpan(startLocal.TimeOfDay.ToTimeSpan());
-        //var endTime = TimeOnly.FromTimeSpan(endLocal.TimeOfDay.ToTimeSpan());
 
         if (startDate != endDate)
         {

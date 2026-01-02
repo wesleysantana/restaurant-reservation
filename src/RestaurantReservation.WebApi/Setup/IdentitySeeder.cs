@@ -1,5 +1,4 @@
-﻿using DotNetEnv;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RestaurantReservation.Identity.Context;
 
@@ -17,14 +16,14 @@ public static class IdentitySeeder
         var roleManager = provider.GetRequiredService<RoleManager<IdentityRole>>();
 
         // garante que migrations do Identity rodem
-        await context.Database.MigrateAsync();         
+        await context.Database.MigrateAsync();
 
         var adminEmail = configuration["ADMIN_EMAIL"];
         var adminPassword = configuration["ADMIN_PASSWORD"];
         var adminRole = configuration["ADMIN_ROLE"] ?? "Admin";
 
         if (string.IsNullOrWhiteSpace(adminEmail) || string.IsNullOrWhiteSpace(adminPassword))
-            return;              
+            return;
 
         // cria role Admin se não existir
         if (!await roleManager.RoleExistsAsync(adminRole))

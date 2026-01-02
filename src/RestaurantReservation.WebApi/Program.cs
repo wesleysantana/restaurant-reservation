@@ -1,4 +1,3 @@
-using DotNetEnv;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using NodaTime;
@@ -7,34 +6,14 @@ using RestaurantReservation.WebApi.Extensions;
 using RestaurantReservation.WebApi.Setup;
 using Serilog;
 using System.Globalization;
+
 using Identity = RestaurantReservation.Identity.Context;
+
 using Infra = RestaurantReservation.Infra.Context;
 
-Log.Logger = new LoggerConfiguration()    
-    .WriteTo.Console() // Configure um sink para o console para ver os logs iniciais
-    .CreateBootstrapLogger(); // Cria um logger leve para uso inicial
-
-//var currentDir = Directory.GetCurrentDirectory();
-
-//// possíveis caminhos: dev (bin/Debug ? raiz) e container (/app/.env)
-//var possiblePaths = new[]
-//{
-//    Path.GetFullPath(Path.Combine(currentDir, "..", "..", ".env")),
-//    Path.Combine(currentDir, ".env"),
-//};
-
-//var envFile = possiblePaths.FirstOrDefault(File.Exists);
-
-//if (envFile is null)
-//{
-//    Log.Warning($"ARQUIVO .ENV NÃO ENCONTRADO. Caminhos verificados: {string.Join(", ", possiblePaths)}");
-//}
-//else
-//{
-//    Log.Information($"Carregando variáveis de ambiente do arquivo: {envFile}");
-//    Env.Load(envFile);
-//}
-
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,7 +42,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.DefaultRequestCulture = new RequestCulture("pt-BR");
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
-    
+
     options.RequestCultureProviders.Insert(0, new AcceptLanguageHeaderRequestCultureProvider());
 });
 
