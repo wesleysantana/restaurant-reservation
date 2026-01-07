@@ -18,9 +18,13 @@ public static class IdentitySeeder
         // garante que migrations do Identity rodem
         await context.Database.MigrateAsync();
 
-        var adminEmail = configuration["ADMIN_EMAIL"];
-        var adminPassword = configuration["ADMIN_PASSWORD"];
-        var adminRole = configuration["ADMIN_ROLE"] ?? "Admin";
+        //var adminEmail = configuration["ADMIN_EMAIL"];
+        //var adminPassword = configuration["ADMIN_PASSWORD"];
+        //var adminRole = configuration["ADMIN_ROLE"] ?? "Admin";
+
+        var adminEmail = configuration["ADMIN_EMAIL"] ?? configuration["AdminSeed:Email"];
+        var adminPassword = configuration["ADMIN_PASSWORD"] ?? configuration["AdminSeed:Password"];
+        var adminRole = configuration["ADMIN_ROLE"] ?? configuration["AdminSeed:Role"] ?? "Admin";
 
         if (string.IsNullOrWhiteSpace(adminEmail) || string.IsNullOrWhiteSpace(adminPassword))
             return;

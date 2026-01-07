@@ -76,6 +76,8 @@ dotnet run --project src/RestaurantReservation.WebApi
 - Swagger: https://localhost:<porta>/swagger  (ou veja a porta no console)
 - Se você preferir padronizar a porta, execute com `--urls`.
 
+> Ao rodar localmente em Development, o Admin é criado automaticamente (se não existir) conforme appsettings.Development.json.
+
 ---
 
 ## Variáveis de ambiente (Docker)

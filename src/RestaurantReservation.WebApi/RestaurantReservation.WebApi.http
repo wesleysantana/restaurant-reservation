@@ -16,7 +16,7 @@ POST {{RestaurantReservation.WebApi_HostAddress}}/api/user/register
 Content-Type: application/json
 
 {
-  "email": "teste2@teste.com.br",
+  "email": "teste@teste.com.br",
   "password": "Teste@1234",
   "passwordConfirmation": "Teste@1234"
 }
@@ -33,7 +33,7 @@ Content-Type: application/json
 
 ###
 
-### FAZER RESERVA (versão 1 – conforme seu .http)
+### FAZER RESERVA
 POST {{RestaurantReservation.WebApi_HostAddress}}/api/reservations/make
 Content-Type: application/json
 Authorization: Bearer {{access_token}}

@@ -27,7 +27,6 @@ services:
       - ADMIN_EMAIL=${ADMIN_EMAIL}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - ADMIN_ROLE=${ADMIN_ROLE}
-      - JwtOptions__SecurityKey=${JWT_SECURITY_KEY}
       - ConnectionStrings__DefaultConnection=Host=${POSTGRES_HOST};Port=${POSTGRES_PORT};Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};    
     ports:
       - "5003:8080"

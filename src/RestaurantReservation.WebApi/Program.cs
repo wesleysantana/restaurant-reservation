@@ -64,6 +64,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    await IdentitySeeder.SeedAsync(app.Services, builder.Configuration);
 }
 
 app.UseHttpsRedirection();
@@ -73,7 +74,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-await IdentitySeeder.SeedAsync(app.Services, builder.Configuration);
 
 app.Run();
