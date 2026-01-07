@@ -2,6 +2,10 @@
 
 API REST para gerenciamento de reservas de restaurante, com autenticação JWT, regras de horário configuráveis, validação de disponibilidade e execução via Docker.
 
+> ⚠️ **Importante**
+> Esta API **não possui Swagger/OpenAPI configurado**.
+> Os testes devem ser realizados via **Postman** ou ferramenta equivalente.
+
 ## Principais funcionalidades
 - Cadastro e autenticação de usuários (Identity + JWT).
 - Usuário Admin criado automaticamente (via variáveis de ambiente).
@@ -30,54 +34,218 @@ src/
 
 ## Como executar
 
-### Opção A) Docker (recomendado para testar rapidamente)
-1) Copie o arquivo de exemplo:
-```sh
-cp .env-example .env
-```
+## Opção A — Docker Compose (recomendado)
 
-2) Suba tudo com Docker Compose (na raiz do repositório):
-```sh
+```bash
+cp .env-example .env
 docker compose up --build
 ```
 
-3) Acesse:
-- Swagger: http://localhost:5003/swagger
+A API ficará disponível em:
+```
+http://localhost:5003
+```
 
-**Admin padrão (vem do .env):**
-- Email: `admin@restaurant.com`
-- Password: `Admin@123`
-
-> Observação: no Docker, o hostname do Postgres deve ser o nome do serviço do compose (por padrão, `db`). Por isso o `.env-example` usa `POSTGRES_HOST=db`.
+Admin padrão:
+- Email: admin@restaurant.com
+- Senha: Admin@123
 
 ---
 
-### Opção B) Local (Visual Studio / dotnet run)
-Pré-requisitos:
-- .NET SDK
-- PostgreSQL rodando localmente (ex.: porta 5432)
+### Opção B — Docker Run (API apenas)
 
-1) Configuração
-- Este repositório inclui um `appsettings.Development.json` com valores de desenvolvimento (incluindo `JwtOptions:SecurityKey`) para facilitar o teste local.
+Para quem já possui PostgreSQL local:
 
-2) Migrações (Infra e Identity)
-Na raiz do repositório:
-```sh
-dotnet ef database update -p src/RestaurantReservation.Infra -s src/RestaurantReservation.WebApi
-dotnet ef database update -p src/RestaurantReservation.Identity -s src/RestaurantReservation.WebApi
+```env
+ConnectionStrings__DefaultConnection=Host=host.docker.internal;Port=5432;Database=reservas;Username=postgres;Password=postgres
 ```
 
-3) Executar API
-```sh
+```bash
+docker run -d --name restaurant-api -p 5003:8080 --env-file .env restaurant-api:dev
+```
+
+---
+
+### Opção C — Execução Local
+
+```bash
 dotnet run --project src/RestaurantReservation.WebApi
 ```
 
-4) Acesse:
-- Swagger: https://localhost:<porta>/swagger  (ou veja a porta no console)
-- Se você preferir padronizar a porta, execute com `--urls`.
+---
 
-> Ao rodar localmente em Development, o Admin é criado automaticamente (se não existir) conforme appsettings.Development.json.
+## 🧪 Testes
 
+Utilize Postman ou ferramenta equivalente.
+Endpointa:
+```
+### LOGIN
+POST /api/user/login
+Content-Type: application/json
+
+{
+  "email": "teste@teste.com.br",
+  "password": "Teste@1234"
+}
+
+###
+
+### REGISTER
+POST /api/user/register
+Content-Type: application/json
+
+{
+  "email": "teste@teste.com.br",
+  "password": "Teste@1234",
+  "passwordConfirmation": "Teste@1234"
+}
+
+###
+
+### REFRESH LOGIN
+POST /api/user/refresh-login
+Content-Type: application/json
+
+{
+  "refreshToken": "COLOQUE_O_REFRESH_TOKEN_AQUI"
+}
+
+###
+
+### FAZER RESERVA
+POST /api/reservations/make
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "tableId": "00000000-0000-0000-0000-000000000001",
+  "startsAt": "2025-04-01T19:00:00Z",
+  "endsAt":   "2025-04-01T20:00:00Z",
+  "numberOfGuests": 2
+}
+
+###
+
+### LISTAR REGRAS DE HORÁRIO
+GET /api/businesshours
+Authorization: Bearer {{access_token}}
+
+###
+
+### CRIAR REGRA DE HORÁRIO (exemplo: regra semanal – terças de abril, 11h às 23h)
+POST /api/businesshours
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "startDate": "2025-04-01",
+  "endDate": "2025-04-30",
+  "specificDate": null,
+  "weekDay": "Tuesday",
+  "open": "11:00:00",
+  "close": "23:00:00",
+  "isClosed": false
+}
+
+###
+
+### APAGAR REGRA DE HORÁRIO
+DELETE /api/businesshours/{{businessHoursRuleId}}
+Authorization: Bearer {{access_token}}
+
+###
+
+### OBTER UMA REGRA DE HORÁRIO POR ID
+GET /api/businesshours/{{businessHoursRuleId}}
+Authorization: Bearer {{access_token}}
+
+###
+
+### ATUALIZAR REGRA DE HORÁRIO
+PUT /api/businesshours/{{businessHoursRuleId}}
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "startDate": "2025-04-01",
+  "endDate": "2025-04-30",
+  "specificDate": null,
+  "weekDay": "Saturday",
+  "open": "12:00:00",
+  "close": "23:59:00",
+  "isClosed": false
+}
+
+###
+
+### CANCELAR / DELETAR RESERVA
+DELETE /api/reservation
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "reservationId": "00000000-0000-0000-0000-000000000010"
+}
+
+###
+
+### FAZER RESERVA
+POST /api/reservation/make-reservation
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "tableId": "00000000-0000-0000-0000-000000000001",
+  "startsAt": "2025-04-01T19:00:00Z",
+  "endsAt":   "2025-04-01T20:00:00Z",
+  "numberOfGuests": 2
+}
+
+###
+
+### LISTAR MESAS
+GET /api/table
+Authorization: Bearer {{access_token}}
+
+###
+
+### CRIAR MESA (apenas Admin)
+POST /api/table
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "name": "Mesa 01",
+  "capacity": 4
+}
+
+###
+
+### DELETAR MESA (apenas Admin)
+DELETE /api/table/{{tableId}}
+Authorization: Bearer {{access_token}}
+
+###
+
+### OBTER MESA POR ID
+GET /api/table/{{tableId}}
+Authorization: Bearer {{access_token}}
+
+###
+
+### ATUALIZAR MESA (apenas Admin)
+PATCH /api/table/{{tableId}}
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "name": "Mesa 01 - Atualizada",
+  "capacity": 6,
+  "status": "Disponivel"   // enum StatusTable: 'Disponivel','Reservada','Inativa'
+}
+
+###
+```
 ---
 
 ## Variáveis de ambiente (Docker)
@@ -97,6 +265,6 @@ Este projeto utiliza um constraint avançado no PostgreSQL para evitar reservas 
 
 ---
 
-## Notas para avaliadores
+## ✅ Observações 
 - Chaves e credenciais presentes em arquivos de desenvolvimento são **apenas para teste local**.
 - Para produção, a configuração deve vir de um gerenciador de segredos/variáveis de ambiente e as credenciais devem ser substituídas.
